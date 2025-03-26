@@ -1,0 +1,32 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: weixin
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    name: weixin
+    url: jdbc:mysql://127.0.0.1:3306/keycloak2?characterEncoding=UTF-8&serverTimezone=GMT
+    username: root
+    password: root
+
+
+## ??????????????????????????spring??????????????
+mybatis:
+  mapperLocations: classpath:mapper/*.xml # ????????mapper??xml???????
+  type-aliases-package: com.weixin.request.entity  # ???????????
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    # SQL??????????? - ??
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  pattern:
+    console: "%d - %msg%n"
+  level:
+    com.weixin.request.dao: info
+  file:
+    path: /root/yanglao

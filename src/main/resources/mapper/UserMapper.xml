@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weixin.request.dao.UserDao">
+
+    <resultMap type="com.weixin.request.entity.User" id="UserResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="phone"    column="phone"    />
+        <result property="password"    column="password"    />
+        <result property="userEntityId"    column="user_entity_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="code"    column="code"    />
+        <result property="unionId"    column="union_id"    />
+    </resultMap>
+
+    <sql id="selectTIpListVo">
+        select id, name, phone, password, user_entity_id, create_time, code, union_id from user_info
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="com.weixin.request.entity.User" resultMap="UserResult">
+        <include refid="selectTIpListVo"/>
+        <where>
+            1=1
+            <if test="name != null">and name = #{name}</if>
+            <if test="phone != null">and phone = #{phone}</if>
+            <if test="password != null">and password = #{password}</if>
+            <if test="userEntityId != null">and user_entity_id = #{userEntityId}</if>
+            <if test="code != null">and code = #{code}</if>
+            <if test="unionId != null">and union_id = #{unionId}</if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.weixin.request.entity.User">
+      insert into user_info (id, name, phone, password, user_entity_id, create_time,code, union_id)
+      values (#{id}, #{name}, #{phone}, #{password}, #{userEntityId}, #{createTime},#{code},#{unionId});
+    </insert>
+
+    <update id="update" parameterType="com.weixin.request.entity.User">
+        update user_info
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="userEntityId != null">user_entity_id = #{userEntityId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="unionId != null">union_id = #{unionId},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

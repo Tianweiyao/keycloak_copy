@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <style>
+        /* 设置下拉框的宽度和高度 */
+        select {
+            width: 200px; /* 根据需要调整宽度 */
+            height: 30px; /* 根据需要调整高度 */
+            font-size: 16px; /* 调整字体大小以适应你的需求 */
+        }
+    </style>
+    <script>
+        // 获取所有realm并填充到下拉框中
+        function loadRealms() {
+            fetch('http://api.evn.magnetworks.cn/selectRealmAll') // 假设这是获取所有realm的接口
+                .then(response => response.json())
+                .then(data => {
+                    const realmSelect = document.getElementById('realmSelect');
+                    data.forEach(realm => {
+                        let option = document.createElement('option');
+                        option.value = realm.id; // 假设userEntityId是realm对象中的主键ID字段
+                        option.text = realm.name; // 假设name是显示在下拉框中的字段
+                        realmSelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Error loading realms:', error));
+        }
+
+        // 提交用户信息
+        function insertUser() {
+            const name = document.getElementById('name').value;
+            const password = document.getElementById('password').value;
+            const userEntityId = document.getElementById('realmSelect').value;
+
+            const userData = {
+                name: name,
+                password: password,
+                userEntityId: userEntityId
+            };
+
+            fetch('http://api.evn.magnetworks.cn/insertUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('用户添加成功');
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('用户添加失败');
+                });
+        }
+
+        // 页面加载时执行
+        window.onload = function() {
+            loadRealms();
+        };
+    </script>
+</head>
+<body>
+<h1>用户注册</h1>
+<form onsubmit="event.preventDefault(); insertUser();">
+    <label for="name">用户名:</label><br/>
+    <input type="text" id="name" name="name"><br/>
+    <label for="password">密码:</label><br/>
+    <input type="password" id="password" name="password"><br/>
+    <label for="realmSelect">选择Realm:</label><br/>
+    <select id="realmSelect"></select><br/><br/>
+    <input type="submit" value="注册">
+</form>
+</body>
+</html>
