@@ -1,6 +1,5 @@
 package com.weixin.request.util;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -29,19 +28,7 @@ public class HttpUtil {
     private static final String APPID = "wxa8de49759d00f0f9";
     private static final String SECRET = "b68dbef76b5701dc0c3d4bdbbd597a16";
 
-    public static void main(String[] args) throws IOException {
 
-        String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + APPID + "&secret=" + SECRET+"&code=0815b4100pb7UT11lK000VHfsl25b415"+"&grant_type=authorization_code";
-
-        String data = doGet(url);
-        JSONObject jsonObject = JSONObject.parseObject(data);
-        String access_token = jsonObject.getString("access_token");
-        String openid = jsonObject.getString("openid");
-        String unionid = jsonObject.getString("unionid");
-        logging.info("access_token:{}",access_token);
-        logging.info("openid:{}",openid);
-        logging.info("unionid:{}",unionid);
-    }
 
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();

@@ -7,11 +7,10 @@ import com.weixin.request.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -24,6 +23,8 @@ public class ApiWeiXinController {
     private RealmService realmService;
     @Autowired
     private UserService userService;
+    @Autowired
+    public RedisTemplate redisTemplate;
 
     @GetMapping("/selectRealmAll")
     public Map<String,Object> selectRealmAll(HttpServletRequest request, HttpServletResponse response){
@@ -48,25 +49,10 @@ public class ApiWeiXinController {
         return map;
     }
 
-
-    @GetMapping("/getState")
-    public String getState(){
-        User user = new User();
-        user.setName("/protocol/openid-connect/auth");
-        User user1 = userService.selectByPrimaryKey(user);
-        return user1.getPassword();
-    }
-
-    @GetMapping("/getUserId")
-    public String getUserId(HttpServletRequest request){
-        String unionid = (String) request.getSession().getAttribute("unionid");
-        User user = new User();
-        user.setUnionId(unionid);
-        User user1 = userService.selectByPrimaryKey(user);
-        if (user1 != null){
-            return user1.getId();
-        }
-        return null;
+    @GetMapping("/getDetil")
+    public String getDetil(){
+     String json = (String) redisTemplate.opsForValue().get("json");
+     return json;
     }
 
 }
