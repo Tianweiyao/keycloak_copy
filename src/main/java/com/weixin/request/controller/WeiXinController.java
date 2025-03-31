@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,23 +36,22 @@ public class WeiXinController {
 
     public String index(HttpServletRequest request, HttpServletResponse response, String code, String state, String redirect_uri) throws IOException {
 
-
-        String qrconnect_state = data("D:\\lz\\output.txt");
-        String qrconnect_url = "http://127.0.0.1:80/realms/test/broker/weixin/endpoint?code=" + code + "&state=" + qrconnect_state;
-        response.sendRedirect(qrconnect_url);
-
         String unionid = data("D:\\lz\\input.txt");
         logging.info("unionid:"+unionid);
+        JSONObject jsonObject = JSONObject.parseObject(unionid);
+        unionid = jsonObject.getString("unionid");
+        User user = new User();
+        user.setUnionId(unionid);
+        User user1 = userService.selectByPrimaryKey(user);
+
+
         if (unionid != null){
-            JSONObject jsonObject = JSONObject.parseObject(unionid);
-            unionid = jsonObject.getString("unionid");
-            User user = new User();
-            user.setUnionId(unionid);
-            User user1 = userService.selectByPrimaryKey(user);
             if (user1 != null){
-                String redirect_uri_copy = "http://127.0.0.1:65010/callback?state=" + state+"&data="+user1.getId();
                 logging.info("有人进来了");
-                return "redirect:"+redirect_uri_copy;
+                request.getSession().setAttribute("auth_state",state);
+                String qrconnect_state = data("D:\\lz\\output.txt");
+                String qrconnect_url = "http://127.0.0.1:80/realms/test/broker/weixin/endpoint?code=" + code + "&state=" + qrconnect_state;
+                response.sendRedirect(qrconnect_url);
             }else {
                 logging.info("没人进来了");
                 return "redirect:https://www.baidu.com";
@@ -95,6 +93,13 @@ public class WeiXinController {
             index(request, response, code, state, redirect_uri);
         }
         return null;
+    }
+
+    @GetMapping("/get")
+    public void string(HttpServletRequest request, HttpServletResponse response,@RequestParam("data") String data,@RequestParam("state") String state) throws IOException {
+        String targetUrl = "http://127.0.0.1:65010/callback?state=" + state + "&data=" + data;
+        logging.info("跳转链接："+targetUrl);
+        response.sendRedirect(targetUrl);
     }
 
 }
