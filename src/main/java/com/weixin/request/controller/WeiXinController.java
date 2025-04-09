@@ -36,6 +36,9 @@ public class WeiXinController {
 
     public String index(HttpServletRequest request, HttpServletResponse response, String code, String state, String redirect_uri) throws IOException {
 
+        /**
+         * 取出keycloak自己生成的state，解析state,获取用微信用户信息，unionid判断用户是否存在
+         */
         String unionid = data("D:\\lz\\input.txt");
         logging.info("unionid:"+unionid);
         JSONObject jsonObject = JSONObject.parseObject(unionid);
@@ -45,14 +48,14 @@ public class WeiXinController {
         User user1 = userService.selectByPrimaryKey(user);
 
 
-        if (unionid != null){
+        if (unionid != null){ //判断用户是否存在，已经存在，重定向到keycloak登录接口
             if (user1 != null){
                 logging.info("有人进来了");
                 request.getSession().setAttribute("auth_state",state);
                 String qrconnect_state = data("D:\\lz\\output.txt");
                 String qrconnect_url = "http://127.0.0.1:80/realms/test/broker/weixin/endpoint?code=" + code + "&state=" + qrconnect_state;
                 response.sendRedirect(qrconnect_url);
-            }else {
+            }else { //没有该用户，跳到注册页面
                 logging.info("没人进来了");
                 return "redirect:https://www.baidu.com";
             }
@@ -76,6 +79,9 @@ public class WeiXinController {
     }
 
 
+    /**
+     * 该方法是第一步 用于拦截请求自定义重定向url及state
+     */
     @GetMapping("/realms/test/protocol/openid-connect/auth")
     public String SendMessage(HttpServletRequest request, HttpServletResponse response, @RequestParam("response_type") String response_type, @RequestParam("client_id") String client_id,
                               @RequestParam("redirect_uri") String redirect_uri, @RequestParam("scope") String scope,
@@ -85,21 +91,14 @@ public class WeiXinController {
         redisTemplate.opsForValue().set("json",json);
 
 
-        if (code == null) { //如果是空代表是第一次请求
+        if (code == null) { //如果是空代表是第一次请求,用于拦截请求自定义重定向url及state
             String url = "http://127.0.0.1:80/realms/test/protocol/openid-connect/auth?response_type=" + response_type + "&client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&scope=" + scope + "&state=" + state;
             System.out.println("response_type:" + url);
             response.sendRedirect(url);
-        } else if (code != null) { //不为空验证用户是否存在，然后跳转到第5步
+        } else if (code != null) { //不为空代表是微信扫码成功已获得用户信息，验证用户是否存在，然后跳转到第5步
             index(request, response, code, state, redirect_uri);
         }
         return null;
-    }
-
-    @GetMapping("/get")
-    public void string(HttpServletRequest request, HttpServletResponse response,@RequestParam("data") String data,@RequestParam("state") String state) throws IOException {
-        String targetUrl = "http://127.0.0.1:65010/callback?state=" + state + "&data=" + data;
-        logging.info("跳转链接："+targetUrl);
-        response.sendRedirect(targetUrl);
     }
 
 }
